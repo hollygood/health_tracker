@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import App from './App';
+import { createBackup, serializeBackup } from './features/backup/backupFile';
 import { loadEntries, saveEntries } from './features/logs/entryStorage';
 import { saveData } from './features/profiles/profileStorage';
 import { leo, mia, sampleEntries } from './test/fixtures';
@@ -136,5 +137,22 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: 'Growth' }));
     expect(await screen.findByRole('heading', { name: 'Growth' })).toBeInTheDocument();
+  });
+
+  it('restores a backup and shows the restored profile straight away', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const file = new File(
+      [serializeBackup({ ...createBackup(), profiles: [leo], activeProfileId: leo.id, entries: sampleEntries })],
+      'health-tracker-backup.json',
+      { type: 'application/json' },
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Backup and restore' }));
+    await user.upload(await screen.findByLabelText('Backup file'), file);
+    await user.click(await screen.findByRole('button', { name: 'Add to what is here' }));
+
+    expect(await screen.findByRole('button', { name: 'Leo' })).toBeInTheDocument();
+    expect(loadEntries()).toHaveLength(5);
   });
 });

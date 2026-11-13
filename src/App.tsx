@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AppHeader from './components/AppHeader';
 import BottomNav from './components/BottomNav';
+import BackupPage from './features/backup/BackupPage';
 import DosageCalculatorPage from './features/dosage/DosageCalculatorPage';
 import HomePage from './features/home/HomePage';
 import { deleteEntriesForProfile } from './features/logs/entryStorage';
@@ -19,7 +20,8 @@ import type { Route } from './routes';
 
 export default function App() {
   const [route, navigate] = useHashRoute();
-  const { profiles, activeProfile, saveProfile, deleteProfile, selectProfile } = useProfiles();
+  const { profiles, activeProfile, saveProfile, deleteProfile, selectProfile, reloadProfiles } =
+    useProfiles();
   const [profilesOpen, setProfilesOpen] = useState(false);
   // Entry that Reports asked a log page to open for editing.
   const [editEntryId, setEditEntryId] = useState<string | null>(null);
@@ -84,6 +86,7 @@ export default function App() {
           />
         )}
         {route === 'history' && <MedicalHistoryPage {...logPageProps} />}
+        {route === 'backup' && <BackupPage onBack={() => goTo('home')} onRestored={reloadProfiles} />}
         {route === 'reports' && (
           <ReportsPage
             profile={activeProfile}

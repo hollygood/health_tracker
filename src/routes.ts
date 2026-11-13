@@ -7,7 +7,8 @@ export type Route =
   | 'sickness'
   | 'growth'
   | 'growth-chart'
-  | 'history';
+  | 'history'
+  | 'backup';
 
 export const ROUTES: readonly Route[] = [
   'home',
@@ -19,4 +20,5 @@ export const ROUTES: readonly Route[] = [
   'growth',
   'growth-chart',
   'history',
+  'backup',
 ];

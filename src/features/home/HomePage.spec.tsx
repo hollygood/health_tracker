@@ -8,7 +8,7 @@ describe('HomePage', () => {
     render(<HomePage onNavigate={() => {}} />);
 
     const titles = screen.getAllByRole('button').map((b) => b.textContent);
-    expect(titles).toHaveLength(6);
+    expect(titles).toHaveLength(7); // six blocks, then the backup link
     ['Dosage calculator', 'Medicine', 'Temperature', 'Sickness', 'Growth', 'Medical history'].forEach(
       (title, i) => expect(titles[i]).toContain(title),
     );
@@ -21,6 +21,7 @@ describe('HomePage', () => {
     ['Sickness', 'sickness'],
     ['Growth', 'growth'],
     ['Medical history', 'history'],
+    ['Backup and restore', 'backup'],
   ])('opens %s', async (title, route) => {
     const onNavigate = vi.fn();
     render(<HomePage onNavigate={onNavigate} />);

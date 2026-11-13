@@ -8,6 +8,8 @@ export interface ProfilesApi {
   saveProfile: (profile: Profile) => void;
   deleteProfile: (id: string) => void;
   selectProfile: (id: string) => void;
+  /** Re-reads profiles from storage, after something else (a restore) has changed it. */
+  reloadProfiles: () => void;
 }
 
 /** Profiles and the active profile, kept in sync with on-device storage. */
@@ -39,11 +41,14 @@ export function useProfiles(): ProfilesApi {
     setData((d) => ({ ...d, activeProfileId: id }));
   }, []);
 
+  const reloadProfiles = useCallback(() => setData(loadData()), []);
+
   return {
     profiles: data.profiles,
     activeProfile: data.profiles.find((p) => p.id === data.activeProfileId) ?? null,
     saveProfile,
     deleteProfile,
     selectProfile,
+    reloadProfiles,
   };
 }

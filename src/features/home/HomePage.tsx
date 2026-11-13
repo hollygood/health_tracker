@@ -2,6 +2,7 @@ import type { IconType } from 'react-icons';
 import {
   FaCalculator,
   FaChevronRight,
+  FaFloppyDisk,
   FaHeadSideCough,
   FaNotesMedical,
   FaPills,
@@ -51,6 +52,13 @@ export default function HomePage({ onNavigate }: { onNavigate: (route: Route) =>
           <FaChevronRight className="flex-none" aria-hidden="true" />
         </button>
       ))}
+
+      <button
+        className="inline-flex min-h-11 items-center justify-center gap-2 font-bold text-accent md:col-span-2"
+        onClick={() => onNavigate('backup')}
+      >
+        <FaFloppyDisk aria-hidden="true" /> Backup and restore
+      </button>
     </div>
   );
 }

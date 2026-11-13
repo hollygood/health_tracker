@@ -5,10 +5,11 @@ import EntryFormFooter from '../EntryFormFooter';
 import type { HistoryEntry, NewEntry } from '../entryTypes';
 import { inputValueToIso, toDateTimeInputValue } from '../formatters';
 import LogPageLayout, { type LogPageProps } from '../LogPageLayout';
-import RecentEntries from '../RecentEntries';
 import { useCategories } from '../useCategories';
 import { useEntries } from '../useEntries';
 import { useEntryEditor, type EditRequest } from '../useEntryEditor';
+import HistoryNoteList from './HistoryNoteList';
+import PhotoToText from './PhotoToText';
 
 export default function MedicalHistoryPage({
   profile,
@@ -42,12 +43,11 @@ function MedicalHistory({ profile, ...editRequest }: { profile: Profile } & Edit
         onSave={editor.save}
         onCancel={editor.cancelEditing}
       />
-      <RecentEntries
+      <HistoryNoteList
         entries={entriesApi.entries}
         onEdit={editor.startEditing}
         onDelete={editor.remove}
         editingId={editor.editing?.id}
-        emptyText="No medical history added yet."
       />
     </>
   );
@@ -135,6 +135,9 @@ function MedicalHistoryForm({ initial, onSave, onCancel }: FormProps) {
           className="input textarea"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+        />
+        <PhotoToText
+          onText={(text) => setDescription((current) => (current.trim() ? `${current.trim()}\n\n${text}` : text))}
         />
       </div>
 

@@ -123,7 +123,7 @@ describe('TemperatureLogPage', () => {
     it('does not report back for a different entry edited afterwards', async () => {
       saveEntries([
         ...sampleEntries.filter((e) => e.type === 'temperature'),
-        { ...sampleEntries[1], id: 'e-temp-2', celsius: 37 },
+        { id: 'e-temp-2', profileId: leo.id, type: 'temperature', time: sampleEntries[1].time, celsius: 37 },
       ]);
       const { user, onEditDone } = renderEditing('e-temp');
 
