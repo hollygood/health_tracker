@@ -17,8 +17,18 @@ const ACTION = 'btn btn-soft min-w-0 flex-1 gap-1.5 px-2';
 export default function ExportPanel({ text, title, fileName, entryCount }: Props) {
   const [status, setStatus] = useState('');
 
+  // Not every browser has a share sheet (desktop Chrome, or a page not served over HTTPS).
+  // Share stays visible everywhere and falls back to copying, so it never silently does nothing.
   const handleShare = async () => {
-    setStatus((await shareText(title, text)) ? 'Shared.' : '');
+    if (canShare()) {
+      setStatus((await shareText(title, text)) ? 'Shared.' : '');
+      return;
+    }
+    setStatus(
+      (await copyText(text))
+        ? 'Sharing is not available in this browser, so the report was copied instead. Paste it where you need it.'
+        : 'Sharing is not available in this browser. Use Download instead.',
+    );
   };
 
   const handleCopy = async () => {
@@ -45,11 +55,9 @@ export default function ExportPanel({ text, title, fileName, entryCount }: Props
       </p>
 
       <div className="flex gap-2">
-        {canShare() && (
-          <button className={ACTION} onClick={handleShare}>
-            <FaShareNodes className="flex-none" aria-hidden="true" /> Share
-          </button>
-        )}
+        <button className={ACTION} onClick={handleShare}>
+          <FaShareNodes className="flex-none" aria-hidden="true" /> Share
+        </button>
         <button className={ACTION} onClick={handleCopy}>
           <FaCopy className="flex-none" aria-hidden="true" /> Copy
         </button>

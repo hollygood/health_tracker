@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { FaTriangleExclamation } from 'react-icons/fa6';
 import { calculateDose } from '../../dosage/calculateDose';
 import { MEDICINES, type MedicineId } from '../../dosage/dosageTable';
+import RichTextEditor from '../../../components/richText/RichTextEditor';
+import { normalizeRich } from '../../../components/richText/richTextFormat';
 import type { Profile } from '../../profiles/profileStorage';
 import ProfileWeightEditor from '../../profiles/ProfileWeightEditor';
 import EntryFormFooter from '../EntryFormFooter';
@@ -117,7 +119,7 @@ function MedicineForm({ profile, initial, onSave, onCancel, onSaveProfile }: For
       medicineName: name,
       amount,
       unit,
-      notes: notes.trim(),
+      notes: normalizeRich(notes),
     });
   };
 
@@ -223,17 +225,7 @@ function MedicineForm({ profile, initial, onSave, onCancel, onSaveProfile }: For
         )}
       </div>
 
-      <div className="field">
-        <label className="field-label" htmlFor="medicine-notes">
-          Notes
-        </label>
-        <textarea
-          id="medicine-notes"
-          className="input textarea"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
-      </div>
+      <RichTextEditor id="medicine-notes" label="Notes" value={notes} onChange={setNotes} />
 
       <EntryFormFooter
         error={error}

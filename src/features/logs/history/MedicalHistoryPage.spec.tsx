@@ -84,7 +84,7 @@ describe('MedicalHistoryPage', () => {
       await user.upload(screen.getByLabelText('Photo to read text from'), photo());
 
       const description = screen.getByLabelText('Description');
-      await waitFor(() => expect(description).toHaveValue('Amoxicillin 250 mg\nTwice daily for 7 days'));
+      await waitFor(() => expect(description.innerHTML).toBe('Amoxicillin 250 mg<br>Twice daily for 7 days'));
 
       await user.type(description, ' with food');
       await user.click(screen.getByRole('button', { name: 'Save to medical history' }));
@@ -92,7 +92,7 @@ describe('MedicalHistoryPage', () => {
       expect(loadEntries()[0]).toEqual(
         expect.objectContaining({
           title: 'Prescription',
-          description: 'Amoxicillin 250 mg\nTwice daily for 7 days with food',
+          description: 'Amoxicillin 250 mg<br>Twice daily for 7 days with food',
         }),
       );
     });
@@ -105,7 +105,9 @@ describe('MedicalHistoryPage', () => {
       await user.upload(screen.getByLabelText('Photo to read text from'), photo());
 
       await waitFor(() =>
-        expect(screen.getByLabelText('Description')).toHaveValue('Seen for ear pain.\n\nFollow up in 2 weeks'),
+        expect(screen.getByLabelText('Description').innerHTML).toBe(
+          'Seen for ear pain.<br><br>Follow up in 2 weeks',
+        ),
       );
     });
   });

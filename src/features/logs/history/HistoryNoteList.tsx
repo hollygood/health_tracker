@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaChevronDown, FaPen, FaTrashCan } from 'react-icons/fa6';
+import RichText from '../../../components/richText/RichText';
 import type { HistoryEntry } from '../entryTypes';
 import { formatDateTime } from '../formatters';
 
@@ -76,8 +77,12 @@ export default function HistoryNoteList({ entries, onEdit, onDelete, editingId =
                       </div>
                       <div>
                         <dt className="text-sm font-bold text-muted">Description</dt>
-                        <dd className="break-words whitespace-pre-wrap">
-                          {entry.description || <span className="text-muted">No description</span>}
+                        <dd>
+                          {entry.description ? (
+                            <RichText value={entry.description} />
+                          ) : (
+                            <span className="text-muted">No description</span>
+                          )}
                         </dd>
                       </div>
                     </dl>

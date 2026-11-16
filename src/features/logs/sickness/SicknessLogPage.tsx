@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react';
+import RichTextEditor from '../../../components/richText/RichTextEditor';
+import { normalizeRich } from '../../../components/richText/richTextFormat';
 import type { Profile } from '../../profiles/profileStorage';
 import CategoryPicker from '../CategoryPicker';
 import EntryFormFooter from '../EntryFormFooter';
@@ -92,7 +94,7 @@ function SicknessForm({ initial, onSave, onCancel }: FormProps) {
     if (end && !endIso) return setError('Enter a valid end time, or leave it empty.');
     if (endIso && endIso < startIso) return setError('The end time is before the start time.');
 
-    onSave({ type: 'sickness', time: startIso, endTime: endIso, category, notes: notes.trim() });
+    onSave({ type: 'sickness', time: startIso, endTime: endIso, category, notes: normalizeRich(notes) });
   };
 
   return (
@@ -137,17 +139,7 @@ function SicknessForm({ initial, onSave, onCancel }: FormProps) {
         onAddCategory={addCategory}
       />
 
-      <div className="field">
-        <label className="field-label" htmlFor="sickness-notes">
-          Notes
-        </label>
-        <textarea
-          id="sickness-notes"
-          className="input textarea"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
-      </div>
+      <RichTextEditor id="sickness-notes" label="Notes" value={notes} onChange={setNotes} />
 
       <EntryFormFooter
         error={error}

@@ -25,7 +25,8 @@ describe('ReportTimeline', () => {
 
     const firstDay = screen.getAllByRole('region')[0];
     expect(within(firstDay).getAllByRole('listitem')).toHaveLength(2);
-    expect(within(firstDay).getByText("Advil Children's Liquid, 6 mL. After lunch")).toBeInTheDocument();
+    expect(within(firstDay).getByText("Advil Children's Liquid, 6 mL")).toBeInTheDocument();
+    expect(within(firstDay).getByText('After lunch')).toBeInTheDocument();
     expect(within(firstDay).getByText('38.5 °C (101.3 °F)')).toBeInTheDocument();
   });
 

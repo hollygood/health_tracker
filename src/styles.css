@@ -58,10 +58,35 @@
     @apply text-sm font-bold text-muted;
   }
   .input {
-    @apply min-h-[50px] w-full rounded-xl border-[1.5px] border-line bg-surface px-3.5 text-lg;
+    @apply block min-h-[50px] w-full max-w-full min-w-0 rounded-xl border-[1.5px] border-line bg-surface px-3.5 text-lg;
   }
-  .textarea {
-    @apply min-h-24 py-3;
+  /*
+   * iPhone gives date and time fields their own minimum width, which pushes them past the
+   * edge of the card. Dropping the native appearance lets them shrink to fit like other fields.
+   */
+  input.input[type='date'],
+  input.input[type='datetime-local'],
+  input.input[type='time'] {
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 46px;
+  }
+  input.input::-webkit-date-and-time-value {
+    text-align: left;
+  }
+
+  /* Formatted notes, in the editor and wherever a note is shown. */
+  .rich-text ul {
+    list-style: disc;
+    padding-left: 1.4em;
+  }
+  .rich-text ol {
+    list-style: decimal;
+    padding-left: 1.4em;
+  }
+  .rich-text b,
+  .rich-text strong {
+    font-weight: 800;
   }
   .select {
     @apply pr-10;
@@ -111,8 +136,5 @@
   }
   .sheet-close {
     top: calc(12px + env(safe-area-inset-top));
-  }
-  .sheet-pad {
-    padding-bottom: calc(22px + env(safe-area-inset-bottom));
   }
 }

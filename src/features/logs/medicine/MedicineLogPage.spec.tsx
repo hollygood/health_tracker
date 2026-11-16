@@ -76,7 +76,8 @@ describe('MedicineLogPage', () => {
     await user.type(screen.getByLabelText('Notes'), 'After lunch');
     await user.click(screen.getByRole('button', { name: 'Save medicine' }));
 
-    expect(screen.getByText('Advil Concentrated Drops, 3 mL. After lunch')).toBeInTheDocument();
+    expect(screen.getByText('Advil Concentrated Drops, 3 mL')).toBeInTheDocument();
+    expect(screen.getByText('After lunch')).toBeInTheDocument();
     expect(loadEntries()).toEqual([
       expect.objectContaining({
         type: 'medicine',
@@ -139,7 +140,7 @@ describe('MedicineLogPage', () => {
       expect(screen.getByRole('form', { name: 'Edit medicine' })).toBeInTheDocument();
       expect(screen.getByLabelText('Type')).toHaveValue('advil-childrens-liquid');
       expect(screen.getByLabelText('Amount (mL)')).toHaveValue(6);
-      expect(screen.getByLabelText('Notes')).toHaveValue('After lunch');
+      expect(screen.getByLabelText('Notes')).toHaveTextContent('After lunch');
 
       const amount = screen.getByLabelText('Amount (mL)');
       await user.clear(amount);

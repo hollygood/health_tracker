@@ -30,7 +30,11 @@ describe('GrowthLogPage', () => {
     await user.type(screen.getByLabelText('Head circumference (cm)'), '49');
     await user.click(screen.getByRole('button', { name: 'Save growth' }));
 
-    expect(screen.getByText('Weight 14.2 kg, Height 98.5 cm, Head 49 cm')).toBeInTheDocument();
+    // Each measurement on its own row: label on the left, value on the right.
+    const saved = screen.getByRole('listitem');
+    expect(saved).toHaveTextContent('Height98.5 cm');
+    expect(saved).toHaveTextContent('Weight14.2 kg');
+    expect(saved).toHaveTextContent('Head49 cm');
     expect(loadEntries()).toEqual([
       expect.objectContaining({ type: 'growth', heightCm: 98.5, weightKg: 14.2, headCm: 49 }),
     ]);

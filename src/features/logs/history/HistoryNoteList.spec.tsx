@@ -61,7 +61,7 @@ describe('HistoryNoteList', () => {
 
     expect(row(/^Flu shot/)).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('Vaccination')).toBeInTheDocument();
-    expect(screen.getByText(/Left arm\.\s+No reaction\./)).toBeInTheDocument();
+    expect(screen.getByText(/Left arm\.\s*No reaction\./)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   });

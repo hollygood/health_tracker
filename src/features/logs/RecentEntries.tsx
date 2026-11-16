@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { FaPen, FaTrashCan } from 'react-icons/fa6';
-import { entrySummary } from './entrySummary';
+import EntryDetails from './EntryDetails';
 import type { Entry } from './entryTypes';
 import { formatDate, formatDateTime } from './formatters';
 
@@ -53,7 +53,7 @@ export default function RecentEntries<T extends Entry>({
                     {entry.type === 'growth' ? formatDate(entry.time) : formatDateTime(entry.time)}
                     {entry.id === editingId && ' (editing)'}
                   </p>
-                  <p className="break-words">{entrySummary(entry)}</p>
+                  <EntryDetails entry={entry} />
                 </div>
                 {confirmingId === entry.id ? (
                   <>

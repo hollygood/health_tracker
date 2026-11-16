@@ -17,7 +17,8 @@ describe('RecentEntries', () => {
 
     const items = screen.getAllByRole('listitem');
     expect(items).toHaveLength(5);
-    expect(within(items[0]).getByText("Advil Children's Liquid, 6 mL. After lunch")).toBeInTheDocument();
+    expect(within(items[0]).getByText("Advil Children's Liquid, 6 mL")).toBeInTheDocument();
+    expect(within(items[0]).getByText('After lunch')).toBeInTheDocument();
     expect(within(items[1]).getByText('38.5 °C (101.3 °F)')).toBeInTheDocument();
   });
 

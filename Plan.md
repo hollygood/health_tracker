@@ -58,10 +58,15 @@ How to read the boxes: a ticked feature is built, with tests. Each phase ends wi
 
 - [x] Medical history: photo to text into the description, on the device (Tesseract.js 7, English)
 - [x] Backup and restore of all data to a file (add to what is here, or replace everything)
+- [x] Backup files encrypted with a password (AES-256-GCM, PBKDF2); older unencrypted backups still restore
+- [x] Notes and descriptions: formatted-text editor (bold, italic, underline, list, colour), double height, draggable taller; shown with formatting
+- [x] Growth entries listed as label and value rows; date and time fields kept inside the card on iPhone
 - [x] Installable, offline-capable app (vite-plugin-pwa 2: manifest, icons, service worker)
 - [x] Verified: `npm test`, `npm run build` and `npm run preview` pass, including opening offline (2026-11-13)
 - [ ] Verified: photo to text tried on real photos, online and then offline
-- [ ] Deploy to Cloudflare (`npm run deploy`), custom domain
+- [x] Deployed to Cloudflare (2026-11-13)
+- [ ] Custom domain (optional)
+- [ ] Verified on iPhone: date fields fit the card, the notes box drags taller, formatting buttons work
 - [ ] Verified: installed to a phone's home screen from the deployed site
 - [ ] Optional login gate with Cloudflare Access
 

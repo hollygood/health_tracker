@@ -1,7 +1,14 @@
-import { useRef, useState, type ChangeEvent } from 'react';
-import { FaChevronLeft, FaDownload, FaFileImport } from 'react-icons/fa6';
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { FaChevronLeft, FaFileImport, FaLock } from 'react-icons/fa6';
 import { formatDateTime } from '../logs/formatters';
 import { downloadText } from '../reports/shareReport';
+import {
+  decryptBackupText,
+  encryptBackupText,
+  isEncryptedBackup,
+  isEncryptionAvailable,
+  MIN_PASSWORD_LENGTH,
+} from './backupCrypto';
 import {
   backupFileName,
   createBackup,
@@ -20,28 +27,60 @@ interface Props {
 }
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const messageOf = (problem: unknown) =>
+  problem instanceof Error ? problem.message : 'The file could not be read.';
 
-/** Save everything on this device to a file, or load it back from one. */
+/** Save everything on this device to a password-protected file, or load it back from one. */
 export default function BackupPage({ onBack, onRestored }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  /** A backup file that has been read and checked, waiting for the user to choose how to restore it. */
+  const [busy, setBusy] = useState(false);
+
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  /** Text of an encrypted backup that has been chosen but not yet unlocked. */
+  const [lockedFile, setLockedFile] = useState<string | null>(null);
+  const [unlockPassword, setUnlockPassword] = useState('');
+  /** A backup that has been read and checked, waiting for the user to choose how to restore it. */
   const [pending, setPending] = useState<BackupFile | null>(null);
   const [confirmingReplace, setConfirmingReplace] = useState(false);
 
-  const handleSave = () => {
-    const backup = createBackup();
-    const fileName = backupFileName();
-    downloadText(fileName, serializeBackup(backup), 'application/json');
-    setError('');
-    setMessage(
-      `Saved ${fileName} with ${plural(backup.profiles.length, 'profile', 'profiles')} and ${plural(
-        backup.entries.length,
-        'entry',
-        'entries',
-      )}. Keep it somewhere safe, such as your cloud drive.`,
-    );
+  const canEncrypt = isEncryptionAvailable();
+
+  const fail = (text: string) => {
+    setMessage('');
+    setError(text);
+  };
+
+  const handleSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      return fail(`Use a password of at least ${MIN_PASSWORD_LENGTH} characters.`);
+    }
+    if (password !== confirmPassword) return fail('The two passwords do not match.');
+
+    setBusy(true);
+    try {
+      const backup = createBackup();
+      const fileName = backupFileName();
+      downloadText(fileName, await encryptBackupText(serializeBackup(backup), password), 'application/json');
+      setPassword('');
+      setConfirmPassword('');
+      setError('');
+      setMessage(
+        `Saved ${fileName} with ${plural(backup.profiles.length, 'profile', 'profiles')} and ${plural(
+          backup.entries.length,
+          'entry',
+          'entries',
+        )}, protected by your password.`,
+      );
+    } catch {
+      fail('The backup could not be encrypted. Nothing was saved.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,13 +89,33 @@ export default function BackupPage({ onBack, onRestored }: Props) {
     if (!file) return;
 
     setMessage('');
+    setError('');
+    setPending(null);
+    setLockedFile(null);
+    setUnlockPassword('');
     setConfirmingReplace(false);
     try {
-      setPending(parseBackup(await readFileText(file)));
+      const text = await readFileText(file);
+      if (isEncryptedBackup(text)) setLockedFile(text);
+      else setPending(parseBackup(text)); // a backup saved before encryption was added
+    } catch (problem) {
+      fail(messageOf(problem));
+    }
+  };
+
+  const handleUnlock = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!lockedFile) return;
+    setBusy(true);
+    try {
+      setPending(parseBackup(await decryptBackupText(lockedFile, unlockPassword)));
+      setLockedFile(null);
+      setUnlockPassword('');
       setError('');
     } catch (problem) {
-      setPending(null);
-      setError(problem instanceof Error ? problem.message : 'The file could not be read.');
+      fail(messageOf(problem));
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -65,6 +124,7 @@ export default function BackupPage({ onBack, onRestored }: Props) {
     const { profilesAdded, entriesAdded } = restoreBackup(pending, mode);
     setPending(null);
     setConfirmingReplace(false);
+    setError('');
     setMessage(
       mode === 'replace'
         ? `Restored ${plural(profilesAdded, 'profile', 'profiles')} and ${plural(entriesAdded, 'entry', 'entries')}.`
@@ -88,18 +148,58 @@ export default function BackupPage({ onBack, onRestored }: Props) {
         device.
       </p>
 
-      <section className="card" aria-labelledby="save-heading">
+      <form className="card" onSubmit={handleSave} aria-labelledby="save-heading" noValidate>
         <h2 id="save-heading" className="text-lg font-extrabold">
           Save a backup
         </h2>
         <p className="text-sm text-muted">
-          Downloads one file with every profile, entry and custom category. It is not encrypted, so
-          treat it like any other health record.
+          Downloads one file with every profile, entry and custom category, encrypted with a
+          password you choose.
         </p>
-        <button className="btn" onClick={handleSave}>
-          <FaDownload aria-hidden="true" /> Save backup file
-        </button>
-      </section>
+
+        {canEncrypt ? (
+          <>
+            <div className="field">
+              <label className="field-label" htmlFor="backup-password">
+                Password
+              </label>
+              <input
+                id="backup-password"
+                className="input"
+                type="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label className="field-label" htmlFor="backup-password-confirm">
+                Password again
+              </label>
+              <input
+                id="backup-password-confirm"
+                className="input"
+                type="password"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+            <p className="text-sm font-bold text-warn">
+              Keep this password safe. Without it the backup cannot be opened, and there is no way
+              to reset it.
+            </p>
+            <button className="btn" type="submit" disabled={busy}>
+              <FaLock aria-hidden="true" /> Save encrypted backup
+            </button>
+          </>
+        ) : (
+          <p className="font-bold text-warn" role="alert">
+            Encrypted backups need a secure connection. Open the app from its https address (or
+            localhost) to save one.
+          </p>
+        )}
+      </form>
 
       <section className="card" aria-labelledby="restore-heading">
         <h2 id="restore-heading" className="text-lg font-extrabold">
@@ -116,6 +216,28 @@ export default function BackupPage({ onBack, onRestored }: Props) {
         <button className="btn btn-soft" onClick={() => inputRef.current?.click()}>
           <FaFileImport aria-hidden="true" /> Choose a backup file
         </button>
+
+        {lockedFile && (
+          <form className="flex flex-col gap-2.5 rounded-xl bg-page p-3" onSubmit={handleUnlock} noValidate>
+            <div className="field">
+              <label className="field-label" htmlFor="unlock-password">
+                Password for this backup
+              </label>
+              <input
+                id="unlock-password"
+                className="input"
+                type="password"
+                autoComplete="current-password"
+                value={unlockPassword}
+                onChange={(e) => setUnlockPassword(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <button className="btn" type="submit" disabled={busy || unlockPassword === ''}>
+              Unlock backup
+            </button>
+          </form>
+        )}
 
         {pending && (
           <div className="flex flex-col gap-2.5 rounded-xl bg-page p-3" data-testid="backup-summary">

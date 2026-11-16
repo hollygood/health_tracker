@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaPen, FaTrashCan } from 'react-icons/fa6';
-import { entrySummary } from '../logs/entrySummary';
+import EntryDetails from '../logs/EntryDetails';
 import { ENTRY_TYPE_LABELS, type Entry } from '../logs/entryTypes';
 import { ENTRY_TYPE_META } from '../logs/entryTypeMeta';
 import { groupByDay } from './reportFilters';
@@ -52,7 +52,7 @@ export default function ReportTimeline({ entries, onEdit, onDelete }: Props) {
                       {ENTRY_TYPE_LABELS[entry.type]}
                       {entry.type !== 'growth' && `, ${timeText(entry.time)}`}
                     </p>
-                    <p className="break-words">{entrySummary(entry)}</p>
+                    <EntryDetails entry={entry} />
                   </div>
                   {confirmingId === entry.id ? (
                     <div className="flex flex-none flex-col items-end gap-1">

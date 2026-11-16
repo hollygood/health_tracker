@@ -29,8 +29,8 @@ function renderPanel() {
 describe('ExportPanel', () => {
   beforeEach(() => {
     vi.mocked(share.canShare).mockReturnValue(false);
-    vi.mocked(share.shareText).mockResolvedValue(true);
-    vi.mocked(share.copyText).mockResolvedValue(true);
+    vi.mocked(share.shareText).mockReset().mockResolvedValue(true);
+    vi.mocked(share.copyText).mockReset().mockResolvedValue(true);
     vi.mocked(share.downloadText).mockReset();
   });
 
@@ -80,10 +80,25 @@ describe('ExportPanel', () => {
     expect(screen.queryByRole('button', { name: 'Email' })).not.toBeInTheDocument();
   });
 
-  it('hides Share where the device has no share sheet', () => {
-    renderPanel();
+  it('copies instead, and says so, where the browser has no share sheet', async () => {
+    const user = renderPanel();
 
-    expect(screen.queryByRole('button', { name: 'Share' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Share' }));
+
+    expect(share.shareText).not.toHaveBeenCalled();
+    expect(share.copyText).toHaveBeenCalledWith(TEXT);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Sharing is not available in this browser, so the report was copied instead',
+    );
+  });
+
+  it('points to Download when neither sharing nor copying works', async () => {
+    vi.mocked(share.copyText).mockResolvedValue(false);
+    const user = renderPanel();
+
+    await user.click(screen.getByRole('button', { name: 'Share' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Use Download instead');
   });
 
   it('shares through the share sheet where there is one', async () => {

@@ -1,3 +1,4 @@
+import { richToOneLine } from '../../components/richText/richTextFormat';
 import { ENTRY_TYPES } from '../logs/entryTypeMeta';
 import { ENTRY_TYPE_LABELS, type Entry } from '../logs/entryTypes';
 import { celsiusToFahrenheit, toDateInputValue, toDateTimeInputValue } from '../logs/formatters';
@@ -11,7 +12,6 @@ import { groupByDay, type ReportFilters } from './reportFilters';
 
 const localDateTime = (iso: string) => toDateTimeInputValue(new Date(iso)).replace('T', ' ');
 const localTime = (iso: string) => localDateTime(iso).slice(11);
-const oneLine = (text: string) => text.replace(/\s*\n+\s*/g, ' ').trim();
 
 /** Length of time between two ISO datetimes, e.g. `40 min`, `5 h`, `2 d 3 h`. */
 export function durationText(startIso: string, endIso: string): string {
@@ -31,7 +31,7 @@ function entryDetails(entry: Entry): string {
   switch (entry.type) {
     case 'medicine':
       return `${entry.medicineName}, ${entry.amount} ${entry.unit}${
-        entry.notes ? `. Notes: ${oneLine(entry.notes)}` : ''
+        entry.notes ? `. Notes: ${richToOneLine(entry.notes)}` : ''
       }`;
     case 'temperature':
       return `${entry.celsius} °C (${celsiusToFahrenheit(entry.celsius)} °F)`;
@@ -39,7 +39,7 @@ function entryDetails(entry: Entry): string {
       const status = entry.endTime
         ? `recovered ${localDateTime(entry.endTime)} (lasted ${durationText(entry.time, entry.endTime)})`
         : 'ongoing';
-      return `${entry.category}, ${status}${entry.notes ? `. Notes: ${oneLine(entry.notes)}` : ''}`;
+      return `${entry.category}, ${status}${entry.notes ? `. Notes: ${richToOneLine(entry.notes)}` : ''}`;
     }
     case 'growth':
       return [
@@ -51,7 +51,7 @@ function entryDetails(entry: Entry): string {
         .join(', ');
     case 'history':
       return `${entry.title} (${entry.category})${
-        entry.description ? `. ${oneLine(entry.description)}` : ''
+        entry.description ? `. ${richToOneLine(entry.description)}` : ''
       }`;
   }
 }

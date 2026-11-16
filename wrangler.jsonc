@@ -1,6 +1,6 @@
 // Cloudflare Workers (static assets). Deploy with `npm run deploy`.
 {
-  "name": "health-tracker",
+  "name": "app",
   "compatibility_date": "2026-11-01",
   "assets": {
     "directory": "./dist",

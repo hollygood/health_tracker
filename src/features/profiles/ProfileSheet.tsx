@@ -40,11 +40,11 @@ export default function ProfileSheet({ profiles, activeId, onSelect, onSave, onD
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-end justify-center bg-ink/45 md:items-center"
+      className="fixed inset-0 z-30 flex items-center justify-center bg-ink/45 p-4"
       onClick={onClose}
     >
       <div
-        className="sheet-pad flex max-h-[90dvh] w-full max-w-[520px] flex-col gap-3.5 overflow-y-auto rounded-t-3xl bg-surface px-[18px] pt-3.5 md:rounded-3xl"
+        className="flex max-h-[90dvh] w-full max-w-[520px] flex-col gap-3.5 overflow-y-auto rounded-3xl bg-surface px-[18px] pt-3.5 pb-5"
         role="dialog"
         aria-modal="true"
         aria-label="Profiles"

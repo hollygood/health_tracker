@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AppHeader from './components/AppHeader';
 import BottomNav from './components/BottomNav';
+import Disclaimer from './components/Disclaimer';
 import BackupPage from './features/backup/BackupPage';
 import DosageCalculatorPage from './features/dosage/DosageCalculatorPage';
 import HomePage from './features/home/HomePage';
@@ -57,7 +58,7 @@ export default function App() {
     <div className="mx-auto flex min-h-dvh max-w-[720px] flex-col">
       <AppHeader activeProfile={activeProfile} onOpenProfiles={openProfiles} />
 
-      <main className="content-pad flex-1 px-4 pt-1.5 md:px-6">
+      <main className="flex-1 px-4 pt-1.5 md:px-6">
         {route === 'home' && <HomePage onNavigate={goTo} />}
         {route === 'calculator' && (
           <DosageCalculatorPage
@@ -95,6 +96,7 @@ export default function App() {
           />
         )}
       </main>
+      <Disclaimer />
 
       <BottomNav route={route} onNavigate={goTo} />
 

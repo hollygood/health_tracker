@@ -27,6 +27,7 @@ The phased plan and what is still open are in [Plan.md](Plan.md).
 - **Sickness:** start, optional end, category, notes. Categories can be added.
 - **Growth:** date, height, weight (kg or pounds), head circumference.
 - **Medical history:** title, date, category, description. Text can be read in from a photo. Notes are an expandable list.
+- **Formatted notes:** notes and descriptions have a small editor (bold, italic, underline, bulleted list, text colour) in a box that can be dragged taller, and are shown with their formatting.
 
 **Reports**
 - A timeline of everything logged for the profile, grouped by day.
@@ -38,7 +39,7 @@ The phased plan and what is still open are in [Plan.md](Plan.md).
 - The latest value and percentile of each, and a table of every measurement.
 
 **Backup and restore**
-- Save everything to one file, and load it back on the same or another device.
+- Save everything to one password-encrypted file, and load it back on the same or another device.
 
 ## Built with
 
@@ -106,11 +107,16 @@ so the deployed app can be added to a phone's home screen and opens with no conn
 ## Privacy and limits
 
 - Data lives only in this browser on this device. Clearing the browser's data, or losing the
-  device, loses it; use Backup and restore. The backup file is not encrypted.
+  device, loses it; use Backup and restore.
+- Backup files are encrypted with a password you choose (AES-256-GCM, key derived with
+  PBKDF2-SHA-256, 600,000 rounds). There is no way to recover a forgotten password.
 - Photos used for photo to text are not saved or uploaded. Only the text is kept.
 - The dosage calculator reproduces one printed sheet. Always read the label of the product
   you have, and ask a healthcare provider if unsure.
 - Growth percentiles are a guide, not a diagnosis.
+- Formatted notes are stored as a small, fixed subset of HTML. Everything shown as a note is
+  rebuilt from an allow-list first (`richTextFormat.ts`), so pasted or restored content
+  cannot carry scripts, links or styles.
 
 ## Dosage calculator rules
 
@@ -165,13 +171,19 @@ src/
   components/                    shared, feature-agnostic UI
     AppHeader.tsx
     BottomNav.tsx                (+ .spec.tsx)
+    Disclaimer.tsx               small print on every page (+ .spec.tsx)
     SegmentedControl.tsx         (+ .spec.tsx)
+    richText/
+      RichTextEditor.tsx         notes editor, resizable   (+ .spec.tsx)
+      RichText.tsx               shows a formatted note    (+ .spec.tsx)
+      richTextFormat.ts          sanitise, convert to text (+ .spec.ts)
     MultiSelectDropdown.tsx      tick one or several     (+ .spec.tsx)
   hooks/
     useHashRoute.ts              minimal hash router
   features/
     backup/
       backupFile.ts              create, check, restore   (+ .spec.ts)
+      backupCrypto.ts            password encryption      (+ .spec.ts)
       BackupPage.tsx             (+ .spec.tsx)
     dosage/
       dosageTable.ts             sheet data, row for row (source of truth)
@@ -206,6 +218,7 @@ src/
       entrySummary.ts            one-line text per entry (+ .spec.ts)
       LogPageLayout.tsx          shared page frame       (+ .spec.tsx)
       RecentEntries.tsx          list with edit, delete  (+ .spec.tsx)
+      EntryDetails.tsx           one entry's text in a list (+ .spec.tsx)
       EntryFormFooter.tsx        save / cancel buttons   (+ .spec.tsx)
       useEntryEditor.ts          add / edit / delete flow
       CategoryPicker.tsx         (+ .spec.tsx)

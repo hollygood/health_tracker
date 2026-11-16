@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react';
+import RichTextEditor from '../../../components/richText/RichTextEditor';
+import { appendPlainText, normalizeRich } from '../../../components/richText/richTextFormat';
 import type { Profile } from '../../profiles/profileStorage';
 import CategoryPicker from '../CategoryPicker';
 import EntryFormFooter from '../EntryFormFooter';
@@ -82,7 +84,7 @@ function MedicalHistoryForm({ initial, onSave, onCancel }: FormProps) {
       time: iso,
       title: title.trim(),
       category,
-      description: description.trim(),
+      description: normalizeRich(description),
     });
   };
 
@@ -126,20 +128,13 @@ function MedicalHistoryForm({ initial, onSave, onCancel }: FormProps) {
         onAddCategory={addCategory}
       />
 
-      <div className="field">
-        <label className="field-label" htmlFor="history-description">
-          Description
-        </label>
-        <textarea
-          id="history-description"
-          className="input textarea"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <PhotoToText
-          onText={(text) => setDescription((current) => (current.trim() ? `${current.trim()}\n\n${text}` : text))}
-        />
-      </div>
+      <RichTextEditor
+        id="history-description"
+        label="Description"
+        value={description}
+        onChange={setDescription}
+      />
+      <PhotoToText onText={(text) => setDescription((current) => appendPlainText(current, text))} />
 
       <EntryFormFooter
         error={error}
